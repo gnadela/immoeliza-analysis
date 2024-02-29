@@ -1,5 +1,6 @@
 cleaning needs:
 -remove duplicates by ID
+-identify duplicate properties with different ids - Geraldine
 -remove columns PropertyURL, Street, House, Box, and Floor
 - Convert empty to 0 for columns Furnished, Fireplace, Terrace, TerraceArea, Garden, GardenArea, Pool
 - Empty to NaN/None for columns ConstructionYear, BedroomCount, LivingArea, KitchenType, Facades, Condition, EPCScore, Latitude, Longitude
