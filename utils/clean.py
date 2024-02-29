@@ -6,4 +6,4 @@ clean_data = pd.read_csv("https://raw.githubusercontent.com/bear-revels/immo-eli
 # create data cleaning function
 
 # Storing locally
-clean_data.to_csv('./src/raw/clean_data.csv')
+clean_data.to_csv('./src/clean/clean_data.csv')
