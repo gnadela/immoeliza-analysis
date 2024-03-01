@@ -5,22 +5,24 @@ from datetime import datetime
 def clean_data(raw_data):
     """
     Clean the raw data by performing several tasks:
-    1. Remove duplicates in the 'ID' column.
-    2. Remove specified columns.
-    3. Filter rows where SaleType == 'residential_sale'.
-    4. Adjust text format.
-    5. Remove leading and trailing spaces from string columns.
-    6. Replace the symbol '�' with 'e' in all string columns.
-    7. Convert empty values to 0 for specified columns; assumption that if blank then 0.
-    8. Convert specified columns to int64 type after filling missing values.
-    9. Replace any ConstructionYear > current_year + 10 with NaN.
-    10. Write resulting dataframe to a CSV file.
+    1. Remove duplicates
+    2. Remove unused columns
+    3. Filter to SaleType == 'residential_sale'
+    4. Adjust text format
+    5. Remove leading and trailing spaces from string columns
+    6. Replace the symbol '�' with 'e' in all string columns
+    7. Convert empty values to 0 for specified columns; assumption that if blank then 0
+    8. Convert specified columns to int64 type after filling missing values
+    9. Replace any ConstructionYear > current_year + 10 with None
+    10. Trim text after and including '_' from the 'EPCScore' column
+    11. Write resulting dataframe to a CSV file
 
     Parameters:
-    raw_data (DataFrame): The raw DataFrame to be cleaned.
+    raw_data (DataFrame): The raw DataFrame to be cleaned
     """
-    # Task 1: Remove duplicates in the 'ID' column
+    # Task 1: Remove duplicates in the 'ID' column and where all columns but 'ID' are equal
     raw_data.drop_duplicates(subset='ID', inplace=True)
+    raw_data.drop_duplicates(subset=raw_data.columns.difference(['ID']), keep='first', inplace=True)
 
     # Task 2: Remove specified columns
     columns_to_drop = ['PropertyUrl', 'Street', 'HouseNumber', 'Box', 'Floor']
@@ -52,7 +54,10 @@ def clean_data(raw_data):
     max_construction_year = current_year + 10
     raw_data['ConstructionYear'] = raw_data['ConstructionYear'].where(raw_data['ConstructionYear'] <= max_construction_year, None)
 
-    # Task 10: Write resulting dataframe to a CSV
+    # Task 10: Trim text after and including '_' from the 'EPCScore' column
+    raw_data['EPCScore'] = raw_data['EPCScore'].str.split('_').str[0]
+
+    # Task 11: Write resulting dataframe to a CSV
     raw_data.to_csv('./src/cleaned/cleaned_data.csv', index=False)
 
 # Load raw data
