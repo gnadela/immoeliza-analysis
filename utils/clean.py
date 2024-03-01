@@ -26,7 +26,7 @@ def clean_data(raw_data):
     raw_data[columns_to_fill_with_zero] = raw_data[columns_to_fill_with_zero].fillna(0)
 
     # Task 4: Convert specified columns to int64 type after filling missing values
-    columns_to_int64 = ['ID', 'PostalCode', 'Price', 'ConstructionYear', 'BedroomCount', 'LivingArea', 'Facades', 'SwimmingPool', 'Latitude', 'Longitude']
+    columns_to_int64 = ['ID', 'PostalCode', 'Price', 'ConstructionYear', 'BedroomCount', 'LivingArea', 'Furnished', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'Facades', 'SwimmingPool', 'Latitude', 'Longitude']
     raw_data[columns_to_int64] = raw_data[columns_to_int64].fillna(-1).astype('int64')
 
     # Task 5: Convert specified columns to str type
