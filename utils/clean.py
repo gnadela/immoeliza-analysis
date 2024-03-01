@@ -1,39 +1,46 @@
 import pandas as pd
 
-# Importing the data
-raw_data = pd.read_csv("https://raw.githubusercontent.com/bear-revels/immo-eliza-scraping-Python_Pricers/main/data/all_property_details.csv")
+def clean_data(raw_data):
+    """
+    Clean the raw data by performing several tasks:
+    1. Remove duplicates in the 'ID' column.
+    2. Remove specified columns.
+    3. Convert empty values to 0 for specified columns.
+    4. Convert specified columns to int64 type after filling missing values.
+    5. Convert specified columns to str type.
+    6. Adjust text format.
+    7. Write resulting dataframe to a CSV file.
 
-# 1. Remove duplicates in the 'ID' column
-raw_data.drop_duplicates(subset=['ID'], inplace=True)
+    Parameters:
+    raw_data (DataFrame): The raw DataFrame to be cleaned.
+    """
+    # Task 1: Remove duplicates in the 'ID' column
+    raw_data.drop_duplicates(subset='ID', inplace=True)
 
-# 2. Remove the columns 'PropertyURL', 'Street', 'House', 'Box', and 'Floor'
-raw_data.drop(columns=['PropertyUrl', 'Street', 'HouseNumber', 'Box', 'Floor'], inplace=True)
+    # Task 2: Remove specified columns
+    columns_to_drop = ['PropertyUrl', 'Street', 'HouseNumber', 'Box', 'Floor']
+    raw_data.drop(columns=columns_to_drop, inplace=True)
 
-# 3. Convert empty values to 0 for specified columns
-zero_fill_columns = ['Furnished', 'Fireplace', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'SwimmingPool']
-raw_data[zero_fill_columns] = raw_data[zero_fill_columns].fillna(0)
+    # Task 3: Convert empty values to 0 for specified columns
+    columns_to_fill_with_zero = ['Furnished', 'Fireplace', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'SwimmingPool']
+    raw_data[columns_to_fill_with_zero] = raw_data[columns_to_fill_with_zero].fillna(0)
 
-# 4. Convert empty values to None for specified columns
-none_fill_columns = ['ConstructionYear', 'BedroomCount', 'LivingArea', 'KitchenType', 'Facades', 'Condition', 'EPCScore']
-numeric_columns = raw_data[none_fill_columns].select_dtypes(include='number').columns
-object_columns = raw_data[none_fill_columns].select_dtypes(exclude='number').columns
+    # Task 4: Convert specified columns to int64 type after filling missing values
+    columns_to_int64 = ['ID', 'PostalCode', 'Price', 'ConstructionYear', 'BedroomCount', 'LivingArea', 'Facades', 'SwimmingPool', 'Latitude', 'Longitude']
+    raw_data[columns_to_int64] = raw_data[columns_to_int64].fillna(-1).astype('int64')
 
-# Fill missing values with None for object columns
-raw_data[object_columns] = raw_data[object_columns].fillna(value=None)
+    # Task 5: Convert specified columns to str type
+    columns_to_str = ['City', 'Region', 'District', 'Province', 'PropertyType', 'PropertySubType', 'SaleType', 'KitchenType', 'Condition', 'EPCScore', 'Property url']
+    raw_data[columns_to_str] = raw_data[columns_to_str].astype('str')
 
-# Fill missing values with 0 for numeric columns
-raw_data[numeric_columns] = raw_data[numeric_columns].fillna(value=0)
+    # Task 6: Adjust text format
+    raw_data[columns_to_str] = raw_data[columns_to_str].applymap(lambda x: x.title() if isinstance(x, str) else x)
 
-# 5. Convert specified columns to int64 type
-int_columns = ['ID', 'PostalCode', 'Price', 'ConstructionYear', 'BedroomCount', 'LivingArea', 'Furnished', 'Fireplace', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'Facades', 'SwimmingPool', 'Latitude', 'Longitude']
-raw_data[int_columns] = raw_data[int_columns].astype('int64')
+    # Task 7: Write resulting dataframe to a CSV
+    raw_data.to_csv('./src/raw/cleaned_data.csv', index=False)
 
-# 6. Convert specified columns to str type
-str_columns = ['City', 'Region', 'District', 'Province', 'PropertyType', 'PropertySubType', 'SaleType', 'KitchenType', 'Condition', 'EPCScore', 'Property url']
-raw_data[str_columns] = raw_data[str_columns].astype('str')
+# Load raw data
+raw_data = pd.read_csv("./src/raw/raw_data.csv")
 
-# 7. Adjust text format
-raw_data[str_columns] = raw_data[str_columns].apply(lambda x: x.str.title())
-
-# Storing locally
-raw_data.to_csv('./src/clean/cleaned_data.csv')
+# Clean the data
+clean_data(raw_data)
