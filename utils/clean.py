@@ -37,7 +37,7 @@ def clean_data(raw_data):
     raw_data[columns_to_str] = raw_data[columns_to_str].applymap(lambda x: x.title() if isinstance(x, str) else x)
 
     # Task 7: Write resulting dataframe to a CSV
-    raw_data.to_csv('./src/raw/cleaned_data.csv', index=False)
+    raw_data.to_csv('./src/cleaned/cleaned_data.csv', index=False)
 
 # Load raw data
 raw_data = pd.read_csv("./src/raw/raw_data.csv")
