@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from datetime import datetime
 
 def clean_data(raw_data):
@@ -12,10 +11,13 @@ def clean_data(raw_data):
     5. Remove leading and trailing spaces from string columns
     6. Replace the symbol '�' with 'e' in all string columns
     7. Convert empty values to 0 for specified columns; assumption that if blank then 0
-    8. Convert specified columns to int64 type after filling missing values
-    9. Replace any ConstructionYear > current_year + 10 with None
-    10. Trim text after and including '_' from the 'EPCScore' column
-    11. Write resulting dataframe to a CSV file
+    8. Convert specified columns to float64 type after filling missing values
+    9. Convert specified columns to Int64 type
+    10. Replace any ConstructionYear > current_year + 10 with None
+    11. Trim text after and including '_' from the 'EPCScore' column
+    12. Remove SaleType column
+    13. Convert 'ListingCreateDate', 'ListingExpirationDate', and 'ListingCloseDate' to Date type with standard DD/MM/YYYY format
+    14. Write resulting dataframe to a CSV
 
     Parameters:
     raw_data (DataFrame): The raw DataFrame to be cleaned
@@ -29,39 +31,52 @@ def clean_data(raw_data):
     raw_data.drop(columns=columns_to_drop, inplace=True)
 
     # Task 3: Filter rows where SaleType == 'residential_sale'
-    raw_data = raw_data[raw_data['SaleType'] == 'residential_sale']
+    raw_data = raw_data[raw_data['SaleType'] == 'residential_sale'].copy()
 
     # Task 4: Adjust text format
     columns_to_str = ['City', 'Region', 'District', 'Province', 'PropertyType', 'PropertySubType', 'SaleType', 'KitchenType', 'Condition', 'EPCScore', 'Property url']
-    raw_data[columns_to_str] = raw_data[columns_to_str].applymap(lambda x: x.title() if isinstance(x, str) else x)
+    raw_data.loc[:, columns_to_str] = raw_data.loc[:, columns_to_str].apply(lambda x: x.str.title() if isinstance(x, str) else x)
 
     # Task 5: Remove leading and trailing spaces from string columns
-    raw_data[columns_to_str] = raw_data[columns_to_str].applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    raw_data.loc[:, columns_to_str] = raw_data.loc[:, columns_to_str].apply(lambda x: x.str.strip() if isinstance(x, str) else x)
 
     # Task 6: Replace the symbol '�' with 'e' in all string columns
     raw_data = raw_data.applymap(lambda x: x.replace('�', 'e') if isinstance(x, str) else x)
 
     # Task 7: Convert empty values to 0 for specified columns; assumption that if blank then 0
-    columns_to_fill_with_zero = ['Furnished', 'Fireplace', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'SwimmingPool']
+    columns_to_fill_with_zero = ['Furnished', 'Fireplace', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'SwimmingPool', 'BidStylePricing']
     raw_data[columns_to_fill_with_zero] = raw_data[columns_to_fill_with_zero].fillna(0)
 
-    # Task 8: Convert specified columns to int64 type after filling missing values
-    columns_to_int64 = ['ID', 'PostalCode', 'Price', 'ConstructionYear', 'BedroomCount', 'LivingArea', 'Furnished', 'Fireplace', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'Facades', 'SwimmingPool']
+    # Task 8: Convert specified columns to float64 type after filling missing values
+    columns_to_float64 = ['BidStylePricing', 'EnergyConsumptionPerSqm', 'bookmarkCount', 'ViewCount']
+    raw_data[columns_to_float64] = raw_data[columns_to_float64].astype(float)
+
+    # Task 9: Convert specified columns to Int64 type
+    columns_to_int64 = ['ID', 'PostalCode', 'Price', 'ConstructionYear', 'BedroomCount', 'LivingArea', 'Furnished', 'Fireplace', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'Facades', 'SwimmingPool', 'bookmarkCount', 'ViewCount']
     raw_data[columns_to_int64] = raw_data[columns_to_int64].astype('Int64')
 
-    # Task 9: Replace any ConstructionYear > current_year + 10 with None
+    # Task 10: Replace any ConstructionYear > current_year + 10 with None
     current_year = datetime.now().year
     max_construction_year = current_year + 10
     raw_data['ConstructionYear'] = raw_data['ConstructionYear'].where(raw_data['ConstructionYear'] <= max_construction_year, None)
 
-    # Task 10: Trim text after and including '_' from the 'EPCScore' column
+    # Task 11: Trim text after and including '_' from the 'EPCScore' column
     raw_data['EPCScore'] = raw_data['EPCScore'].str.split('_').str[0]
 
-    # Task 11: Write resulting dataframe to a CSV
-    raw_data.to_csv('./src/cleaned/cleaned_data.csv', index=False)
+    # Task 12: Remove SaleType column
+    raw_data.drop(columns=['SaleType'], inplace=True)
 
-# Load raw data
-raw_data = pd.read_csv("./src/raw/raw_data.csv")
+    # Task 13: Convert 'ListingCreateDate', 'ListingExpirationDate', and 'ListingCloseDate' to Date type with "%Y-%m-%d" format
+    date_columns = ['ListingCreateDate', 'ListingExpirationDate', 'ListingCloseDate']
+    for col in date_columns:
+        raw_data[col] = pd.to_datetime(raw_data[col]).dt.date
 
-# Clean the data
-clean_data(raw_data)
+    # Task 14: Write resulting dataframe to a CSV
+    raw_data.to_csv('./src/cleaned_data.csv', index=False)
+
+if __name__ == "__main__":
+    # Load raw data
+    raw_data = pd.read_csv("./src/raw_data.csv")
+
+    # Clean the data
+    clean_data(raw_data)
