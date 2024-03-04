@@ -1,37 +1,46 @@
 import pandas as pd
 
-# setup dataframes
-# origin: https://statbel.fgov.be/
-postal_refnis = pd.read_csv('../src/external_data/Postal_Refnis.csv')
+# importing external dataframes
+conversion_key = pd.read_csv('../src/external_data/Postal_Refnis.csv')
 sector_data = pd.read_csv('../src/external_data/SectorData.csv')
 
 # A Prepping postal_refnis for join
-postal_refnis = postal_refnis[['Postal code', 'Refnis code', 'Gemeentenaam']]
-pr = postal_refnis.rename(columns={'Postal code': 'PostalCode', 'Refnis code': 'CD_REFNIS'})
-pr_aggregated = pr.groupby('CD_REFNIS')['PostalCode'].apply(lambda x: ','.join(x.astype(str))).reset_index()
+conversion_key = conversion_key[['Postal code', 'Refnis code', 'Gemeentenaam']]
+conversion_key = conversion_key.rename(columns={'Postal code': 'PostalCode', 'Refnis code': 'CD_REFNIS'})
+    # Accounting for overlap in refniscodes
+conversion_aggregated = conversion_key.groupby('CD_REFNIS')['PostalCode'].apply(lambda x: ','.join(x.astype(str))).reset_index()
 # B Prepping sector_data for join
 sector_data = sector_data[['CD_REFNIS', 'TOTAL', 'OPPERVLAKKTE IN HM²']]
     # Refniscodes are split in even smaller sections -> merge them to overcome issues (take into account in interpretations)
 aggregated_sector_data = sector_data.groupby('CD_REFNIS', as_index=False).agg({'TOTAL': 'sum', 'OPPERVLAKKTE IN HM²': 'sum'})
+# C Merging
+merged_data = pd.merge(aggregated_sector_data, conversion_aggregated, on='CD_REFNIS', how='left')
 
-merged_data = pd.merge(aggregated_sector_data, pr_aggregated, on='CD_REFNIS', how='left')
-
-# calc population density column
-# Calculate population density (population per km²)
+# Calculating population density (population per km²)
 merged_data['Area in km²'] = merged_data['OPPERVLAKKTE IN HM²'] * 0.01
-merged_data['population density'] = (merged_data['TOTAL'] / merged_data['Area in km²']).round(2)
-
-# Display the first few rows of the DataFrame to verify the new column
-
-print(merged_data.head())
+merged_data['PopulationDensity'] = (merged_data['TOTAL'] / merged_data['Area in km²']).round(2)
+# Creating outputfile to check on skewed areas due to over-aggregation
 large_area_combinations = merged_data[merged_data['PostalCode'].str.len() > 15]
 
+# Saving outputfiles
 merged_data.to_csv('../src/external_data/PopulationDensity.csv')
 large_area_combinations.to_csv('../src/external_data/checkforlargeareaaggregations.csv')
 
-# join population density to main cleaned based on postal code -> join on if in postalcodes
-    # Import the csv into a new df
 
-    # Drop all but postalcode & density
+# Importing cleaned data into a df
+original = pd.read_csv('../src/cleaned_data.csv')
+# Drop all but postalcode & population density
+to_merge = merged_data[['PostalCode', 'PopulationDensity']]
 
-    # Add to clean data
+# Itterating over postalcode string 
+postal_code_density = {}
+for _, row in to_merge.iterrows():
+    postal_codes = row['PostalCode'].split(',')
+    for code in postal_codes:
+        postal_code_density[code] = row['PopulationDensity']
+
+# Adding a new column for population density in original, based on the mapping
+original['PopulationDensity'] = original['PostalCode'].apply(lambda x: postal_code_density.get(str(x), None))
+
+# Resave new data wet added column over cleaned_data
+original.to_csv('../src/cleaned_with_popdensity.csv')
