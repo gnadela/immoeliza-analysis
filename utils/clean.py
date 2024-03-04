@@ -6,7 +6,7 @@ def clean_data(raw_data):
     Clean the raw data by performing several tasks:
     1. Remove duplicates
     2. Remove unused columns
-    3. Filter to SaleType == 'residential_sale'
+    3. Filter to SaleType == 'residential_sale' and BidStylePricing == 0
     4. Adjust text format
     5. Remove leading and trailing spaces from string columns
     6. Replace the symbol '�' with 'e' in all string columns
@@ -17,7 +17,12 @@ def clean_data(raw_data):
     11. Trim text after and including '_' from the 'EPCScore' column
     12. Remove SaleType column
     13. Convert 'ListingCreateDate', 'ListingExpirationDate', and 'ListingCloseDate' to Date type with standard DD/MM/YYYY format
-    14. Write resulting dataframe to a CSV
+    14. Drop rows with empty values in 'Price', 'LivingArea', or 'EnergyConsumptionPerSqm'
+    15. Calculate 'TotalArea'
+    16. Calculate 'PricePerLivingSquareMeter'
+    17. Calculate 'PricePerTotalSquareMeter'
+    18. Calculate 'PricePerKWConsumption'
+    19. Write resulting dataframe to a CSV
 
     Parameters:
     raw_data (DataFrame): The raw DataFrame to be cleaned
@@ -30,12 +35,19 @@ def clean_data(raw_data):
     columns_to_drop = ['PropertyUrl', 'Street', 'HouseNumber', 'Box', 'Floor']
     raw_data.drop(columns=columns_to_drop, inplace=True)
 
-    # Task 3: Filter rows where SaleType == 'residential_sale'
-    raw_data = raw_data[raw_data['SaleType'] == 'residential_sale'].copy()
+    # Task 3: Filter rows where SaleType == 'residential_sale' and BidStylePricing == 0
+    raw_data = raw_data[(raw_data['SaleType'] == 'residential_sale') & (raw_data['BidStylePricing'] == 0)].copy()
 
     # Task 4: Adjust text format
-    columns_to_str = ['City', 'Region', 'District', 'Province', 'PropertyType', 'PropertySubType', 'SaleType', 'KitchenType', 'Condition', 'EPCScore', 'Property url']
-    raw_data.loc[:, columns_to_str] = raw_data.loc[:, columns_to_str].apply(lambda x: x.str.title() if isinstance(x, str) else x)
+    columns_to_str = ['City', 'Region', 'District', 'Province', 'PropertyType', 'PropertySubType', 'KitchenType', 'Condition', 'EPCScore']
+
+    def adjust_text_format(x):
+        if isinstance(x, str):
+            return x.title()
+        else:
+            return x
+
+    raw_data.loc[:, columns_to_str] = raw_data.loc[:, columns_to_str].applymap(adjust_text_format)
 
     # Task 5: Remove leading and trailing spaces from string columns
     raw_data.loc[:, columns_to_str] = raw_data.loc[:, columns_to_str].apply(lambda x: x.str.strip() if isinstance(x, str) else x)
@@ -71,7 +83,22 @@ def clean_data(raw_data):
     for col in date_columns:
         raw_data[col] = pd.to_datetime(raw_data[col]).dt.date
 
-    # Task 14: Write resulting dataframe to a CSV
+    # Task 14: Drop rows with empty values in 'Price', 'LivingArea', or 'EnergyConsumptionPerSqm'
+    raw_data.dropna(subset=['Price', 'LivingArea', 'EnergyConsumptionPerSqm'], how='any', inplace=True)
+
+    # Task 15: Calculate 'TotalArea'
+    raw_data['TotalArea'] = raw_data['LivingArea'] + raw_data['GardenArea'] + raw_data['TerraceArea']
+
+    # Task 16: Calculate 'PricePerLivingSquareMeter'
+    raw_data['PricePerLivingSquareMeter'] = (raw_data['Price'] / raw_data['LivingArea']).round().astype(int)
+
+    # Task 17: Calculate 'PricePerTotalSquareMeter'
+    raw_data['PricePerTotalSquareMeter'] = (raw_data['Price'] / raw_data['TotalArea']).round().astype(int)
+
+    # Task 18: Calculate 'PricePerKWConsumption'
+    raw_data['PricePerKWConsumption'] = (raw_data['Price'] / raw_data['EnergyConsumptionPerSqm']).round().astype(int)
+
+    # Task 19: Write resulting dataframe to a CSV
     raw_data.to_csv('./src/cleaned_data.csv', index=False)
 
 if __name__ == "__main__":
