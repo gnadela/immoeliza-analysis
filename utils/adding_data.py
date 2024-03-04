@@ -2,6 +2,7 @@ import pandas as pd
 
 # 0
 # setup dataframes
+# origin: https://statbel.fgov.be/
 postal_refnis = pd.read_csv('../src/external_data/Postal_Refnis.csv')
 sector_data = pd.read_csv('../src/external_data/SectorData.csv')
 
@@ -10,7 +11,7 @@ sector_data = pd.read_csv('../src/external_data/SectorData.csv')
 
 # A Prepping postal_refnis for join
 postal_refnis['CD_REFNIS'] = postal_refnis['Refnis code']
-postal_refnis = postal_refnis[['Postal code', 'CD_REFNIS']]
+postal_refnis = postal_refnis[['Postal code', 'CD_REFNIS', 'Gemeentenaam']]
 pr = postal_refnis.rename(columns={'Postal code': 'PostalCodes'})
 # B Prepping sector_data for join
 sector_data = sector_data[['CD_REFNIS', 'TOTAL', 'OPPERVLAKKTE IN HM²']]
