@@ -38,3 +38,9 @@ def add_population_density(cleaned_data_file):
 
     # Resaving new data with added column over cleaned_data
     original.to_csv(cleaned_data_file, index=False)
+
+    # Adding a new column for population density in original, based on the mapping
+    original['PopulationDensity'] = original['PostalCode'].apply(lambda x: postal_code_density.get(str(x), None))
+
+    # Resaving new data with added column over cleaned_data
+    original.to_csv(cleaned_data_file, index=False)
