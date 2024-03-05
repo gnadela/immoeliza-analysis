@@ -14,8 +14,6 @@ def prepare_model_data(cleaned_data_file):
 
     # Remove outliers
     cleaned_data = remove_outliers(cleaned_data, 'PricePerLivingSquareMeter')
-    cleaned_data = remove_outliers(cleaned_data, 'PricePerTotalSquareMeter')
-    cleaned_data = remove_outliers(cleaned_data, 'EnergyConsumptionPerSqm')
 
     # Save the resulting dataframe to a CSV file
     cleaned_data.to_csv('./src/model_data.csv', index=False)
