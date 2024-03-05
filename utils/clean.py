@@ -21,7 +21,8 @@ def clean_data(raw_data):
     15. Calculate 'TotalArea'
     16. Calculate 'PricePerLivingSquareMeter'
     17. Calculate 'PricePerTotalSquareMeter'
-    18. Write resulting dataframe to a CSV
+    18. Convert string values to numeric values using dictionaries for specified columns
+    19. Write resulting dataframe to a CSV
 
     Parameters:
     raw_data (DataFrame): The raw DataFrame to be cleaned
@@ -96,6 +97,32 @@ def clean_data(raw_data):
 
     # Task 17: Calculate 'PricePerTotalSquareMeter'
     raw_data['PricePerTotalSquareMeter'] = (raw_data['Price'] / raw_data['TotalArea']).round().astype(int)
+
+    # Task 18: Convert string values to numeric values using dictionaries for specified columns
+    condition_mapping = {
+        'nan': None,
+        'To_Be_Done_Up': 2,
+        'To_Renovate': 1,
+        'Just_Renovated': 4,
+        'As_New': 5,
+        'Good': 3,
+        'To_Restore': 0
+    }
+
+    kitchen_mapping = {
+        'nan': None,
+        'Installed': 1,
+        'Not_Installed': 0,
+        'Hyper_Equipped': 1,
+        'Semi_Equipped': 1,
+        'Usa_Installed': 1,
+        'Usa_Hyper_Equipped': 1,
+        'Usa_Semi_Equipped': 1,
+        'Usa_Uninstalled': 0
+    }
+
+    raw_data['Condition#'] = raw_data['Condition'].map(condition_mapping)
+    raw_data['KitchenType#'] = raw_data['KitchenType'].map(kitchen_mapping)
 
     # Task 19: Write resulting dataframe to a CSV
     raw_data.to_csv('./src/cleaned_data.csv', index=False)
