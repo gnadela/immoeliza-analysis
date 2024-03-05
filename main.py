@@ -1,6 +1,7 @@
 from utils.data_import import import_data
 from utils.clean import clean_data
-from utils.model_ready import prepare_model_data  # Import the new module
+from utils.model_ready import prepare_model_data
+from utils.adding_data import add_population_density
 
 def main():
     # Import raw data
@@ -9,9 +10,12 @@ def main():
     # Clean the data
     clean_data(raw_data)
 
-    # Prepare model data
+    # Add population density
     cleaned_data_file = './src/cleaned_data.csv'
-    prepare_model_data(cleaned_data_file)  # Call the function from model_ready.py
+    add_population_density(cleaned_data_file)
+
+    # Prepare model data
+    prepare_model_data(cleaned_data_file)
 
 if __name__ == "__main__":
     main()
