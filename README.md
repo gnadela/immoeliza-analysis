@@ -7,33 +7,32 @@ N/A
 
 ## 📒 Description
 
-This repo is designed to load scraped data from an earlier project repo, organize, normalize, and clean the raw data for analysis. That analysis was conducted and catelogued in notebooks in the analysis folder and then used to further clean the data for future modeling efforts. The project is later presented to a client in a project update meeting which can be found in the reports folder. 
+This repository contains a Python project aimed at loading, organizing, normalizing, and cleaning real estate data scraped from an earlier project. The cleaned data is then analyzed and cataloged in notebooks within the `analysis` folder. Subsequently, the data is further refined for future modeling efforts. The project also includes a presentation for client updates located in the `reports` folder.
 
 ## 📦 Repo structure
 
 ```
 .
 ├── analysis/
-│ └── *Final_Notebook.ipynb
-│ └── Bears_Notebook.ipynb
-│ └── Caros_Notebook.ipynb
-│ └── Geraldines_Notebook.ipynb
+│ ├── *Final_Notebook.ipynb
+│ ├── Bears_Notebook.ipynb
+│ ├── Caros_Notebook.ipynb
+│ ├── Geraldines_Notebook.ipynb
 │ └── Viktors_Notebook.ipynb
 ├── reports/
 │ └── presentation.pdf
-|── src/
-│ └── external_data/
-│   └── PopulationDensity.csv
-│   └── Postal_Refnis.csv
-│   └── SectorData.csv
-│   └── checkforlargeareaaggregations.csv
-│ └── raw_data.csv
-│ └── clean_data.csv
-│ └── model_data.csv
-|── src/
-│ └── adding_data.py
-│ └── clean.py
-│ └── data_import.py
+├── src/
+│ ├── external_data/
+│ │ ├── PopulationDensity.csv
+│ │ ├── Postal_Refnis.csv
+│ │ ├── SectorData.csv
+│ │ └── checkforlargeareaaggregations.csv
+│ ├── raw_data.csv
+│ ├── clean_data.csv
+│ ├── model_data.csv
+│ ├── adding_data.py
+│ ├── clean.py
+│ ├── data_import.py
 │ └── model_ready.py
 ├── .gitignore
 ├── main.py
@@ -43,25 +42,67 @@ This repo is designed to load scraped data from an earlier project repo, organiz
 
 ## 🎮 Usage
 
-1. Clone the repository to your local machine.
+1. **Clone the repository**: 
 
-2. Install the required dependencies by running the following command in your terminal:
+    ```
+    git clone <repository_url>
+    ```
+
+2. **Install dependencies**: 
 
     ```
     pip install -r requirements.txt
     ```
 
-3. Run the `main.py` file to execute the scraper:
+3. **Run the program**: 
 
     ```
     python main.py
     ```
 
-4. The program will load and clean the data, add population density data, and create the three csv files in the src folder; raw_data, clean_data, and model_data
+    This will execute the scraper, loading and cleaning the data, adding population density information, and generating three CSV files (`raw_data.csv`, `clean_data.csv`, and `model_data.csv`) in the `src` folder.
 
 ## ⏱️ Timeline
 
 The development of this project took 5 days for completion.
+
+## 📋 Libraries and Functions
+
+### `data_import.py`
+
+- `import_data()`: Imports raw data from a CSV file using `pandas`, storing it locally and returning a DataFrame.
+
+### `clean.py`
+
+- `clean_data(raw_data)`: Cleans the raw data by performing several tasks:
+  1. Drops rows with empty values in 'Price' and 'LivingArea' columns.
+  2. Removes duplicates in the 'ID' column and where all columns but 'ID' are equal.
+  3. Converts empty values to 0 for specified columns: 'Furnished', 'Fireplace', 'Terrace', 'TerraceArea', 'Garden', 'GardenArea', 'SwimmingPool', 'BidStylePricing', 'ViewCount', 'bookmarkCount'.
+  4. Filters rows where SaleType == 'residential_sale' and BidStylePricing == 0.
+  5. Removes specified columns: 'PropertyUrl', 'Street', 'HouseNumber', 'Box', 'Floor', 'SaleType', 'BidStylePricing', 'Property url'.
+  6. Adjusts text format for specified columns: 'City', 'Region', 'District', 'Province', 'PropertyType', 'PropertySubType', 'KitchenType', 'Condition', 'EPCScore'.
+  7. Removes leading and trailing spaces from string columns.
+  8. Replaces the symbol '�' with 'e' in all string columns.
+  9. Fills missing values with None and converts specified columns to float64 type: 'EnergyConsumptionPerSqm'.
+  10. Converts specified columns to Int64 type: 'ID', 'PostalCode', 'ConstructionYear', 'BedroomCount', 'Furnished', 'Fireplace', 'Terrace', 'Garden', 'Facades', 'SwimmingPool', 'bookmarkCount', 'ViewCount'.
+  11. Replaces any ConstructionYear > current_year + 10 with None.
+  12. Trims text after and including '_' from the 'EPCScore' column.
+  13. Converts 'ListingCreateDate', 'ListingExpirationDate', and 'ListingCloseDate' to Date type with standard DD/MM/YYYY format.
+  14. Replaces values less than or equal to 0 in 'EnergyConsumptionPerSqm' with 0.
+  15. Calculates 'TotalArea'.
+  16. Calculates 'PricePerLivingSquareMeter'.
+  17. Calculates 'PricePerTotalSquareMeter'.
+  18. Converts string values to numeric values using dictionaries for specified columns: 'Condition', 'KitchenType'.
+  19. Writes resulting dataframe to a CSV.
+
+### `adding_data.py`
+
+- `add_population_density(cleaned_data_file)`: Adds population density information to the cleaned data by importing external dataframes, aggregating and merging data, calculating population density, and merging the results back into the original data.
+
+### `model_ready.py`
+
+- `remove_outliers(data, column)`: Removes outliers from the data based on the specified column using the Interquartile Range (IQR) method.
+- `prepare_model_data(cleaned_data_file)`: Prepares the cleaned data for modeling by removing outliers from specified columns and saving the resulting DataFrame to a CSV file.
 
 ## 📌 Personal Situation
 
