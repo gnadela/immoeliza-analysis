@@ -60,7 +60,7 @@ This repository contains a Python project aimed at loading, organizing, normaliz
     python main.py
     ```
 
-    This will execute the scraper, loading and cleaning the data, adding population density information, and generating three CSV files (`raw_data.csv`, `clean_data.csv`, and `model_data.csv`) in the `src` folder.
+    This will load data from a previous project that scraped real estate data, clean the data, add population density information, and generate three CSV files (`raw_data.csv`, `clean_data.csv`, and `model_data.csv`) in the `src` folder.
 
 ## ⏱️ Timeline
 
