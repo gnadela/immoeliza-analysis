@@ -161,3 +161,7 @@ cython_debug/
 
 # personal notebook
 analysis_notebook.ipynb
+
+src/cleaned_data.csv
+src/model_data.csv
+src/raw_data.csv
