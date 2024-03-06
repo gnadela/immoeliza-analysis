@@ -14,7 +14,7 @@ This repository contains a Python project aimed at loading, organizing, normaliz
 ```
 .
 ├── analysis/
-│ ├── *Final_Notebook.ipynb
+│ ├── Final_Notebook.ipynb
 │ ├── Bears_Notebook.ipynb
 │ ├── Caros_Notebook.ipynb
 │ ├── Geraldines_Notebook.ipynb
