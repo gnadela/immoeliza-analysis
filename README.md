@@ -45,7 +45,7 @@ This repository contains a Python project aimed at loading, organizing, normaliz
 1. **Clone the repository**: 
 
     ```
-    git clone <repository_url>
+    git clone https://github.com/gnadela/immoeliza-analysis.git
     ```
 
 2. **Install dependencies**: 
@@ -60,7 +60,7 @@ This repository contains a Python project aimed at loading, organizing, normaliz
     python main.py
     ```
 
-    This will load data from a previous project that scraped real estate data, clean the data, add population density information, and generate three CSV files (`raw_data.csv`, `clean_data.csv`, and `model_data.csv`) in the `src` folder.
+    This will execute the scraper, loading data from a [previous project](https://github.com/bear-revels/immo-eliza-scraping-Python_Pricers.git), cleaning it, adding population density information, and generating three CSV files (`raw_data.csv`, `clean_data.csv`, and `model_data.csv`) in the `src` folder.
 
 ## ⏱️ Timeline
 
