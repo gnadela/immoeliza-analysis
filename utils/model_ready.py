@@ -32,8 +32,11 @@ def prepare_model_data(cleaned_data_file):
     cleaned_data = pd.read_csv(cleaned_data_file)
 
     # Remove outliers
-    cleaned_data = remove_outliers(cleaned_data, 'PricePerLivingSquareMeter')
-
+    for col in ['Price', 'ConstructionYear','BedroomCount', 'LivingArea', 'TerraceArea', 
+                  'GardenArea', 'Facades', 'EnergyConsumptionPerSqm', 'PricePerLivingSquareMeter',
+                  'PricePerTotalSquareMeter', 'PopulationDensity']:
+        cleaned_data = remove_outliers(cleaned_data, col)
+    
     # Save the resulting dataframe to a CSV file
     cleaned_data.to_csv('./src/model_data.csv', index=False)
 
