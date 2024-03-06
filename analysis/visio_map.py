@@ -41,7 +41,7 @@ fig.update_traces(hovertemplate='<b>Postal Code:</b> %{customdata[0]}<br>'
                                   '<b>Number of Properties:</b> %{customdata[3]}')
 
 # Update color bar title
-fig.update_coloraxes(colorbar_title='Median HOUSE Price')
+fig.update_coloraxes(colorbar_title='HOUSE Price')
 
 # Show the plot
 fig.show()
