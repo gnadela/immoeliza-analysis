@@ -161,3 +161,5 @@ cython_debug/
 
 # personal notebook
 analysis_notebook.ipynb
+
+src/
